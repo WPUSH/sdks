@@ -20,12 +20,14 @@ Methods: `send` / `query` plus P0.5 relay APIs `sendMail` / `sendCode` / `queryR
 
 ## Quick start
 
-- Python: see [python/README.md](./python/README.md)
-- TypeScript: see [javascript/README.md](./javascript/README.md)
-- Go: see [go/README.md](./go/README.md)
+Each language README has **full per-method copy-paste examples** (`send` / `query` / `sendMail` / `sendCode` / `queryRelay`, plus option / topic / errors):
+
+- Python: [python/README.md](./python/README.md)
+- TypeScript: [javascript/README.md](./javascript/README.md)
+- Go: [go/README.md](./go/README.md)
 
 ```bash
-export WPUSH_API_KEY=your_key
+export WPUSH_API_KEY=WPUSH_your_key
 ```
 
 LICENSE: MIT © 2026 An Hao / WPUSH
