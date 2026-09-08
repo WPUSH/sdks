@@ -109,3 +109,77 @@ func TestSendNumericData(t *testing.T) {
 		t.Fatalf("id=%s err=%v", id, err)
 	}
 }
+
+func TestSendMailSuccess(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/send_mail" {
+			t.Fatalf("path %s", r.URL.Path)
+		}
+		body, _ := io.ReadAll(r.Body)
+		var m map[string]any
+		_ = json.Unmarshal(body, &m)
+		if m["to"] != "a@b.com" || m["title"] != "hi" || m["content"] != "body" || m["apikey"] != "k" {
+			t.Fatalf("body %#v", m)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"code": 0, "message": "success", "data": "mail-1"})
+	}))
+	defer ts.Close()
+	c, _ := NewClient(Options{APIKey: "k", BaseURL: ts.URL})
+	id, err := c.SendMail(SendMailParams{To: "a@b.com", Title: "hi", Content: "body"})
+	if err != nil || id != "mail-1" {
+		t.Fatalf("id=%s err=%v", id, err)
+	}
+}
+
+func TestSendCodeSuccess(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/send_code" {
+			t.Fatalf("path %s", r.URL.Path)
+		}
+		body, _ := io.ReadAll(r.Body)
+		var m map[string]any
+		_ = json.Unmarshal(body, &m)
+		if m["phone"] != "13800138000" || m["code"] != "123456" {
+			t.Fatalf("body %#v", m)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"code": 0, "message": "success", "data": "code-1"})
+	}))
+	defer ts.Close()
+	c, _ := NewClient(Options{APIKey: "k", BaseURL: ts.URL})
+	id, err := c.SendCode(SendCodeParams{Phone: "13800138000", Code: "123456"})
+	if err != nil || id != "code-1" {
+		t.Fatalf("id=%s err=%v", id, err)
+	}
+}
+
+func TestSendCodeBadPhone(t *testing.T) {
+	c, _ := NewClient(Options{APIKey: "k", BaseURL: "http://example.invalid"})
+	_, err := c.SendCode(SendCodeParams{Phone: "123", Code: "123456"})
+	if _, ok := err.(*ValidationError); !ok {
+		t.Fatalf("%#v", err)
+	}
+}
+
+func TestQueryRelaySuccess(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/query_relay" {
+			t.Fatalf("path %s", r.URL.Path)
+		}
+		body, _ := io.ReadAll(r.Body)
+		var m map[string]any
+		_ = json.Unmarshal(body, &m)
+		if m["id"] != "r1" || m["apikey"] != "k" {
+			t.Fatalf("%#v", m)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"code": 0, "message": "success",
+			"data": map[string]any{"id": "r1", "status": float64(1)},
+		})
+	}))
+	defer ts.Close()
+	c, _ := NewClient(Options{APIKey: "k", BaseURL: ts.URL})
+	out, err := c.QueryRelay("r1", "")
+	if err != nil || out["id"] != "r1" {
+		t.Fatalf("%v %#v", err, out)
+	}
+}

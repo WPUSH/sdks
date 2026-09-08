@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -14,6 +15,11 @@ import (
 const (
 	defaultBaseURL = "https://api.wpush.cn"
 	userAgent      = "wpush-go/0.1.0"
+)
+
+var (
+	phoneRE = regexp.MustCompile(`^(\+?86)?1\d{10}$`)
+	codeRE  = regexp.MustCompile(`^[A-Za-z0-9]{1,6}$`)
 )
 
 // Client talks to the WPUSH open API.
@@ -199,4 +205,83 @@ func (c *Client) Query(messageID string, idempotencyKey string) (map[string]any,
 		return nil, &Error{Message: "invalid query data", Data: string(data)}
 	}
 	return out, nil
+}
+
+// SendMailParams are arguments for SendMail.
+type SendMailParams struct {
+	To             string
+	Title          string
+	Content        string
+	IdempotencyKey string
+}
+
+// SendMail posts /api/v1/send_mail and returns the relay id string.
+func (c *Client) SendMail(p SendMailParams) (string, error) {
+	if p.To == "" {
+		return "", &ValidationError{Message: "to is required"}
+	}
+	if p.Title == "" {
+		return "", &ValidationError{Message: "title is required"}
+	}
+	payload := map[string]any{"apikey": c.APIKey, "to": p.To, "title": p.Title}
+	if p.Content != "" {
+		payload["content"] = p.Content
+	}
+	data, err := c.post("/api/v1/send_mail", payload, p.IdempotencyKey)
+	if err != nil {
+		return "", err
+	}
+	return stringifyID(data), nil
+}
+
+// SendCodeParams are arguments for SendCode.
+type SendCodeParams struct {
+	Phone          string
+	Code           string
+	IdempotencyKey string
+}
+
+// SendCode posts /api/v1/send_code and returns the relay id string.
+func (c *Client) SendCode(p SendCodeParams) (string, error) {
+	if p.Phone == "" || !phoneRE.MatchString(p.Phone) {
+		return "", &ValidationError{Message: "invalid phone"}
+	}
+	if p.Code == "" || !codeRE.MatchString(p.Code) {
+		return "", &ValidationError{Message: "invalid code"}
+	}
+	payload := map[string]any{"apikey": c.APIKey, "phone": p.Phone, "code": p.Code}
+	data, err := c.post("/api/v1/send_code", payload, p.IdempotencyKey)
+	if err != nil {
+		return "", err
+	}
+	return stringifyID(data), nil
+}
+
+// QueryRelay posts /api/v1/query_relay and returns decoded data as map.
+func (c *Client) QueryRelay(id string, idempotencyKey string) (map[string]any, error) {
+	if id == "" {
+		return nil, &ValidationError{Message: "id is required"}
+	}
+	payload := map[string]any{"apikey": c.APIKey, "id": id}
+	data, err := c.post("/api/v1/query_relay", payload, idempotencyKey)
+	if err != nil {
+		return nil, err
+	}
+	var out map[string]any
+	if err := json.Unmarshal(data, &out); err != nil {
+		return nil, &Error{Message: "invalid query data", Data: string(data)}
+	}
+	return out, nil
+}
+
+func stringifyID(data json.RawMessage) string {
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		return s
+	}
+	var n json.Number
+	if err := json.Unmarshal(data, &n); err == nil {
+		return n.String()
+	}
+	return strings.Trim(string(data), "\"")
 }

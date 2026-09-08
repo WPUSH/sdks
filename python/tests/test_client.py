@@ -92,3 +92,45 @@ def test_idempotency_header(mock_urlopen):
     Client(api_key="k").send("t", idempotency_key="idem-1")
     req = mock_urlopen.call_args[0][0]
     assert req.get_header("X-idempotency-key") == "idem-1" or req.headers.get("X-Idempotency-Key") == "idem-1"
+
+
+@patch("wpush.client.urllib.request.urlopen")
+def test_send_mail_success(mock_urlopen):
+    mock_urlopen.return_value = _http_response({"code": 0, "message": "success", "data": "mail-1"})
+    mid = Client(api_key="k").send_mail("a@b.com", "hi", "body")
+    assert mid == "mail-1"
+    req = mock_urlopen.call_args[0][0]
+    assert req.full_url.endswith("/api/v1/send_mail")
+    body = json.loads(req.data.decode())
+    assert body["to"] == "a@b.com"
+    assert body["title"] == "hi"
+    assert body["content"] == "body"
+    assert body["apikey"] == "k"
+
+
+@patch("wpush.client.urllib.request.urlopen")
+def test_send_code_success(mock_urlopen):
+    mock_urlopen.return_value = _http_response({"code": 0, "message": "success", "data": "code-1"})
+    mid = Client(api_key="k").send_code("13800138000", "123456")
+    assert mid == "code-1"
+    req = mock_urlopen.call_args[0][0]
+    assert req.full_url.endswith("/api/v1/send_code")
+    body = json.loads(req.data.decode())
+    assert body["phone"] == "13800138000"
+    assert body["code"] == "123456"
+
+
+def test_send_code_bad_phone():
+    with pytest.raises(ValidationError):
+        Client(api_key="k").send_code("123", "123456")
+
+
+@patch("wpush.client.urllib.request.urlopen")
+def test_query_relay_success(mock_urlopen):
+    data = {"id": "r1", "status": 1}
+    mock_urlopen.return_value = _http_response({"code": 0, "message": "success", "data": data})
+    out = Client(api_key="k").query_relay("r1")
+    assert out["id"] == "r1"
+    body = json.loads(mock_urlopen.call_args[0][0].data.decode())
+    assert body["id"] == "r1"
+    assert mock_urlopen.call_args[0][0].full_url.endswith("/api/v1/query_relay")

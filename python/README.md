@@ -12,6 +12,7 @@ from wpush import Client
 c = Client()  # or Client(api_key="...")
 mid = c.send("title", "content", channel="wechat")
 print(c.query(mid))
+# also: send_mail / send_code / query_relay
 ```
 
 See root [SPEC.md](../SPEC.md). UA: `wpush-python/0.1.0`

@@ -23,6 +23,19 @@ export interface SendParams {
   idempotencyKey?: string;
 }
 
+export interface SendMailParams {
+  to: string;
+  title: string;
+  content?: string;
+  idempotencyKey?: string;
+}
+
+export interface SendCodeParams {
+  phone: string;
+  code: string;
+  idempotencyKey?: string;
+}
+
 function joinChannel(ch?: ChannelInput): string | undefined {
   if (ch === undefined) return undefined;
   return Array.isArray(ch) ? ch.join(",") : ch;
@@ -31,6 +44,9 @@ function joinChannel(ch?: ChannelInput): string | undefined {
 function isSuccessCode(code: unknown): boolean {
   return typeof code === "number" && code === 0;
 }
+
+const PHONE_RE = /^(\+?86)?1\d{10}$/;
+const CODE_RE = /^[A-Za-z0-9]{1,6}$/;
 
 export class Client {
   readonly apiKey: string;
@@ -108,5 +124,31 @@ export class Client {
   async query(messageId: string, idempotencyKey?: string): Promise<unknown> {
     if (!messageId) throw new ValidationError("message_id is required");
     return this.post("/api/v1/query", { apikey: this.apiKey, id: String(messageId) }, idempotencyKey);
+  }
+
+  async sendMail(params: SendMailParams): Promise<string> {
+    if (!params.to) throw new ValidationError("to is required");
+    if (!params.title) throw new ValidationError("title is required");
+    const payload: Record<string, unknown> = { apikey: this.apiKey, to: params.to, title: params.title };
+    if (params.content !== undefined) payload.content = params.content;
+    const data = await this.post("/api/v1/send_mail", payload, params.idempotencyKey);
+    return data === null || data === undefined ? "" : String(data);
+  }
+
+  async sendCode(params: SendCodeParams): Promise<string> {
+    if (!params.phone || !PHONE_RE.test(params.phone)) {
+      throw new ValidationError("invalid phone");
+    }
+    if (!params.code || !CODE_RE.test(params.code)) {
+      throw new ValidationError("invalid code");
+    }
+    const payload: Record<string, unknown> = { apikey: this.apiKey, phone: params.phone, code: params.code };
+    const data = await this.post("/api/v1/send_code", payload, params.idempotencyKey);
+    return data === null || data === undefined ? "" : String(data);
+  }
+
+  async queryRelay(id: string, idempotencyKey?: string): Promise<unknown> {
+    if (!id) throw new ValidationError("id is required");
+    return this.post("/api/v1/query_relay", { apikey: this.apiKey, id: String(id) }, idempotencyKey);
   }
 }

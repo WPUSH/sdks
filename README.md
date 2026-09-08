@@ -4,6 +4,8 @@
 
 Official multi-language SDKs for the WPUSH open API (`https://api.wpush.cn/api/v1/*`).
 
+Methods: `send` / `query` plus P0.5 relay APIs `sendMail` / `sendCode` / `queryRelay`.
+
 ## Languages / 语言
 
 | Language | Package | UA |

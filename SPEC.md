@@ -149,11 +149,18 @@ Base path：`{baseUrl}/api/v1`。一律 **POST** + JSON。
 
 status：`0` 发送中 / `1` 成功 / `2` 失败。
 
-### 5.3 sendMail — `POST /api/v1/send`（channel=mail）或专用端点
+### 5.3 sendMail — `POST /api/v1/send_mail`（P0.5 已实现）
 
-P0 SDK 可提供 `sendMail(title, content, ...)` 语法糖，内部走 send 且 `channel=mail`。计费由服务端扣除积分。
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| apikey | 是 | 与 Header 同值 |
+| to | 是 | 收件邮箱 |
+| title | 是 | 标题 |
+| content | 否 | 正文（有 title 即可） |
 
-### 5.4 sendCode — `POST /api/v1/send_code`
+可选 Header `X-Idempotency-Key`。返回：relay id string（data 同 send，stringify）。
+
+### 5.4 sendCode — `POST /api/v1/send_code`（P0.5 已实现）
 
 | 字段 | 必填 |
 |---|---|
@@ -161,11 +168,17 @@ P0 SDK 可提供 `sendMail(title, content, ...)` 语法糖，内部走 send 且 
 | phone | 是 |
 | code | 是（验证码内容） |
 
-返回：消息 id string。MVP 可后置实现，但 SPEC 要求接口签名对齐。
+客户端软校验：`phone` 匹配 `^(\+?86)?1\d{10}$`，`code` 匹配 `^[A-Za-z0-9]{1,6}$`，否则 `ValidationError`。
+可选 `X-Idempotency-Key`。返回：relay id string。
 
-### 5.5 queryRelay — `POST /api/v1/query_relay`（若线上可用）
+### 5.5 queryRelay — `POST /api/v1/query_relay`（P0.5 已实现）
 
-查询中继/投递明细。字段以线上契约为准；未上线前 SDK 可标记 experimental。
+| 字段 | 必填 |
+|---|---|
+| apikey | 是 |
+| id | 是（relay id） |
+
+返回：`data` 对象（同 query）。
 
 
 ## 6. option 语义（多实例）
@@ -246,7 +259,10 @@ P0 SDK 可提供 `sendMail(title, content, ...)` 语法糖，内部走 send 且 
 | 客户端 | `Client` | `Client` | `Client` |
 | 构造 | `Client(api_key=...)` | `new Client({ apiKey })` | `NewClient(Options{...})` |
 | 发送 | `send(...)` | `send({...})` | `Send(SendParams{...})` |
+| 邮件 | `send_mail(...)` | `sendMail({...})` | `SendMail(SendMailParams{...})` |
+| 验证码 | `send_code(...)` | `sendCode({...})` | `SendCode(SendCodeParams{...})` |
 | 查询 | `query(id)` | `query(id)` | `Query(id, idem)` |
+| 中继查询 | `query_relay(id)` | `queryRelay(id)` | `QueryRelay(id, idem)` |
 | 主题 | `topic_code=` | `topicCode` | `TopicCode` |
 | 幂等 | `idempotency_key=` | `idempotencyKey` | `IdempotencyKey` |
 | 错误 | `WPushError` | `WPushError` | `*Error` / `*ValidationError` |
@@ -286,11 +302,12 @@ JSON wire 字段一律 **snake_case**：`topic_code`、`apikey`。
 
 ---
 
-## 13. 实现检查清单（MVP）
+## 13. 实现检查清单（MVP / P0.5）
 
 - [x] Python：`wpush` Client/send/query/errors + pytest
 - [x] TypeScript：`@wpush/sdk` Client/send/query/errors + vitest
 - [x] Go：`wpush` Client/Send/Query/Error + httptest
+- [x] P0.5：`sendMail` / `sendCode` / `queryRelay`（Python、TS、Go）+ 单测
 - [x] LICENSE MIT
 - [x] SPEC / README / .gitignore
 

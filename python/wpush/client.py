@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import os
 import urllib.error
 import urllib.request
@@ -10,6 +11,8 @@ from .errors import ValidationError, WPushError
 
 DEFAULT_BASE_URL = "https://api.wpush.cn"
 USER_AGENT = "wpush-python/0.1.0"
+_PHONE_RE = re.compile(r"^(\+?86)?1\d{10}$")
+_CODE_RE = re.compile(r"^[A-Za-z0-9]{1,6}$")
 ChannelType = Union[str, Sequence[str]]
 
 
@@ -130,3 +133,42 @@ class Client:
             raise ValidationError("message_id is required")
         payload = {"apikey": self.api_key, "id": str(message_id)}
         return self._post("/api/v1/query", payload, idempotency_key=idempotency_key)
+
+    def send_mail(
+        self,
+        to: str,
+        title: str,
+        content: Optional[str] = None,
+        *,
+        idempotency_key: Optional[str] = None,
+    ) -> str:
+        if not to:
+            raise ValidationError("to is required")
+        if not title:
+            raise ValidationError("title is required")
+        payload: dict[str, Any] = {"apikey": self.api_key, "to": to, "title": title}
+        if content is not None:
+            payload["content"] = content
+        data = self._post("/api/v1/send_mail", payload, idempotency_key=idempotency_key)
+        return _stringify_id(data)
+
+    def send_code(
+        self,
+        phone: str,
+        code: str,
+        *,
+        idempotency_key: Optional[str] = None,
+    ) -> str:
+        if not phone or not _PHONE_RE.match(str(phone)):
+            raise ValidationError("invalid phone")
+        if not code or not _CODE_RE.match(str(code)):
+            raise ValidationError("invalid code")
+        payload = {"apikey": self.api_key, "phone": phone, "code": code}
+        data = self._post("/api/v1/send_code", payload, idempotency_key=idempotency_key)
+        return _stringify_id(data)
+
+    def query_relay(self, relay_id: str, *, idempotency_key: Optional[str] = None) -> Any:
+        if not relay_id:
+            raise ValidationError("id is required")
+        payload = {"apikey": self.api_key, "id": str(relay_id)}
+        return self._post("/api/v1/query_relay", payload, idempotency_key=idempotency_key)
