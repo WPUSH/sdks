@@ -1,0 +1,27 @@
+{
+  "name": "wpush/wpush",
+  "description": "Official WPUSH PHP SDK",
+  "type": "library",
+  "license": "MIT",
+  "version": "0.1.0",
+  "authors": [{"name": "An Hao / WPUSH"}],
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "WPush\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WPush\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}

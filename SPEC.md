@@ -10,6 +10,7 @@
 |---|---|
 | 仓库 | monorepo `WPUSH/sdks` |
 | P0 语言 | Python、TypeScript/Node、Go |
+| P1 语言 | Java、PHP、Dart |
 | LICENSE | MIT（Copyright An Hao / WPUSH, 2026） |
 | option 文案 | 明确多实例（webhook/dingtalk/feishu/wechat_work）+ qqbot 群编码 |
 | API 基址 | `https://api.wpush.cn` |
@@ -39,15 +40,21 @@ sdks/
   python/          # package: wpush
   javascript/      # package: @wpush/sdk
   go/              # module: github.com/WPUSH/sdks/go
+  java/            # Maven: cn.wpush:wpush-sdk
+  php/             # Composer: wpush/wpush
+  dart/            # package: wpush
 ```
 
 ### 1.1 包名 / Module
 
-| 语言 | 包名 | User-Agent |
-|---|---|---|
-| Python | `wpush` | `wpush-python/{ver}` |
-| TypeScript | `@wpush/sdk` | `wpush-js/{ver}` |
-| Go | `github.com/WPUSH/sdks/go`（package `wpush`） | `wpush-go/{ver}` |
+| 语言 | 包名 | User-Agent | 状态 |
+|---|---|---|---|
+| Python | `wpush` | `wpush-python/{ver}` | 已实现 |
+| TypeScript | `@wpush/sdk` | `wpush-js/{ver}` | 已实现 |
+| Go | `github.com/WPUSH/sdks/go`（package `wpush`） | `wpush-go/{ver}` | 已实现 |
+| Java | `cn.wpush:wpush-sdk`（package `cn.wpush.sdk`） | `wpush-java/{ver}` | 已实现 |
+| PHP | `wpush/wpush`（namespace `WPush\`） | `wpush-php/{ver}` | 已实现 |
+| Dart | `wpush` | `wpush-dart/{ver}` | 已实现（P1） |
 
 MVP 版本：`0.1.0`。
 
@@ -86,6 +93,9 @@ Body 中**同时**携带 `apikey` 字段（与 Header 同值）。原因：兼�
   - Python：`type(code) is int and code == 0`（bool 是 int 子类）。
   - JS/TS：`typeof code === "number" && code === 0`。
   - Go：`json.Unmarshal` 到 `any` 后，number 为 `float64`；bool 为 `bool`，不可当成功。
+  - Java：`Number` 且值为 0；`Boolean` 一律失败。
+  - PHP：`is_int`/`is_float` 且 `=== 0`；`is_bool` 一律失败。
+  - Dart：`code is num && code == 0`；`bool` 一律失败。
 
 ### 3.2 失败
 
@@ -116,6 +126,9 @@ Body 中**同时**携带 `apikey` 字段（与 Header 同值）。原因：兼�
 - Python：`timeout: float` 秒。
 - JS：`timeoutMs: number`；可注入 `fetch`。
 - Go：`HTTPClient *http.Client`；`Timeout time.Duration`。
+- Java：`Duration timeout`；可注入 `HttpTransport`。
+- PHP：`float $timeout`；可注入 `HttpTransport`。
+- Dart：`Duration timeout`；可注入 `http.Client`。
 
 
 ## 5. API 方法
@@ -254,19 +267,19 @@ status：`0` 发送中 / `1` 成功 / `2` 失败。
 
 ## 9. 命名映射（Naming Map）
 
-| 概念 | Python | TypeScript | Go |
-|---|---|---|---|
-| 客户端 | `Client` | `Client` | `Client` |
-| 构造 | `Client(api_key=...)` | `new Client({ apiKey })` | `NewClient(Options{...})` |
-| 发送 | `send(...)` | `send({...})` | `Send(SendParams{...})` |
-| 邮件 | `send_mail(...)` | `sendMail({...})` | `SendMail(SendMailParams{...})` |
-| 验证码 | `send_code(...)` | `sendCode({...})` | `SendCode(SendCodeParams{...})` |
-| 查询 | `query(id)` | `query(id)` | `Query(id, idem)` |
-| 中继查询 | `query_relay(id)` | `queryRelay(id)` | `QueryRelay(id, idem)` |
-| 主题 | `topic_code=` | `topicCode` | `TopicCode` |
-| 幂等 | `idempotency_key=` | `idempotencyKey` | `IdempotencyKey` |
-| 错误 | `WPushError` | `WPushError` | `*Error` / `*ValidationError` |
-| 版本常量 | `__version__` | package.json | 模块注释 / const |
+| 概念 | Python | TypeScript | Go | Java | PHP | Dart |
+|---|---|---|---|---|---|---|
+| 客户端 | `Client` | `Client` | `Client` | `Client` | `Client` | `Client` |
+| 构造 | `Client(api_key=...)` | `new Client({ apiKey })` | `NewClient(Options{...})` | `Client.builder().apiKey(...)` | `new Client($apiKey)` | `Client(apiKey: ...)` |
+| 发送 | `send(...)` | `send({...})` | `Send(SendParams{...})` | `send(...)` | `send(...)` | `send(...)` |
+| 邮件 | `send_mail(...)` | `sendMail({...})` | `SendMail(...)` | `sendMail(...)` | `sendMail(...)` | `sendMail(...)` |
+| 验证码 | `send_code(...)` | `sendCode({...})` | `SendCode(...)` | `sendCode(...)` | `sendCode(...)` | `sendCode(...)` |
+| 查询 | `query(id)` | `query(id)` | `Query(id, idem)` | `query(id)` | `query($id)` | `query(id)` |
+| 中继查询 | `query_relay(id)` | `queryRelay(id)` | `QueryRelay(id, idem)` | `queryRelay(id)` | `queryRelay($id)` | `queryRelay(id)` |
+| 主题 | `topic_code=` | `topicCode` | `TopicCode` | `topicCode` | `$topicCode` | `topicCode` |
+| 幂等 | `idempotency_key=` | `idempotencyKey` | `IdempotencyKey` | `idempotencyKey` | `$idempotencyKey` | `idempotencyKey` |
+| 错误 | `WPushError` | `WPushError` | `*Error` / `*ValidationError` | `WPushException` / `ValidationException` | `WPushException` / `ValidationException` | `WPushException` / `ValidationException` |
+| 版本常量 | `__version__` | package.json | 模块注释 / const | `pom.xml` / `USER_AGENT` | `composer.json` / `USER_AGENT` | `pubspec.yaml` / `kUserAgent` |
 
 JSON wire 字段一律 **snake_case**：`topic_code`、`apikey`。
 
@@ -279,7 +292,7 @@ JSON wire 字段一律 **snake_case**：`topic_code`、`apikey`。
 1. Mock HTTP（Python：`urllib` mock；Go：`httptest`；JS：注入 `fetch` / vitest）。
 2. 覆盖：send 成功、channel 数组拼接、numeric data stringify、bool code 拒绝、401、option+topic 冲突、query 成功、UA 与 `X-API-Key`。
 3. 不打真实网络；不打印真实 API Key。
-4. CI 友好：`pytest` / `vitest run` / `go test`。
+4. CI 友好：`pytest` / `vitest run` / `go test` / `mvn test` / `composer test` / `dart test`。
 
 ---
 
@@ -308,6 +321,9 @@ JSON wire 字段一律 **snake_case**：`topic_code`、`apikey`。
 - [x] TypeScript：`@wpush/sdk` Client/send/query/errors + vitest
 - [x] Go：`wpush` Client/Send/Query/Error + httptest
 - [x] P0.5：`sendMail` / `sendCode` / `queryRelay`（Python、TS、Go）+ 单测
+- [x] Java：`cn.wpush:wpush-sdk` Client/send/query/sendMail/sendCode/queryRelay + JUnit 5（已实现）
+- [x] PHP：`wpush/wpush` Client + PHPUnit（已实现）
+- [x] Dart：`wpush` Client + `dart test` / MockClient（P1，已实现）
 - [x] LICENSE MIT
 - [x] SPEC / README / .gitignore
 

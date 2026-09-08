@@ -37,3 +37,19 @@ vendor/
 !.env.example
 *.pem
 *.key
+
+# Java
+java/target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# PHP
+php/vendor/
+php/.phpunit.result.cache
+
+# Dart
+dart/.dart_tool/
+dart/.packages
+dart/pubspec.lock
+dart/build/
