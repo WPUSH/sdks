@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+coverage/
+*.tsbuildinfo
+
+# Go
+bin/
+*.exe
+*.test
+*.out
+coverage.out
+vendor/
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
+
+# Secrets
+.env.*
+!.env.example
+*.pem
+*.key

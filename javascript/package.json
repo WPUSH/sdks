@@ -1,0 +1,25 @@
+{
+  "name": "@wpush/sdk",
+  "version": "0.1.0",
+  "description": "Official WPUSH TypeScript/Node SDK",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "@types/node": "^20.0.0"
+  }
+}
