@@ -2,7 +2,7 @@
 
 官方 WPUSH Python SDK。零运行时依赖（stdlib `urllib`）。
 
-## 安装 / Install
+## 安装
 
 ```bash
 pip install -e ".[dev]"

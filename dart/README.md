@@ -2,7 +2,7 @@
 
 官方 WPUSH Dart SDK。依赖 [`http`](https://pub.dev/packages/http)。
 
-## 安装 / Install
+## 安装
 
 ```yaml
 dependencies:

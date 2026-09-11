@@ -2,7 +2,7 @@
 
 官方 WPUSH PHP SDK。零运行时依赖（stream HTTP，可注入 transport）。
 
-## 安装 / Install
+## 安装
 
 ```bash
 composer require wpush/wpush

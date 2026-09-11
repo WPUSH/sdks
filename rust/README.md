@@ -1,10 +1,10 @@
 # wpush (Rust)
 
-Official WPUSH Rust SDK. Crate: `wpush-sdk`
+官方 WPUSH Rust SDK。Crate：`wpush-sdk`
 
-Blocking HTTP client (reqwest) matching the Go SDK surface.
+阻塞式 HTTP 客户端（reqwest），API 表面与 Go SDK 对齐。
 
-## Install / env
+## 安装 / 环境变量
 
 ```toml
 [dependencies]
@@ -19,16 +19,17 @@ export WPUSH_API_KEY=WPUSH_your_key
 use wpush_sdk::Client;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // reads WPUSH_API_KEY
+    // 读取 WPUSH_API_KEY
     let client = Client::builder().build()?;
-    // or: Client::new("WPUSH_your_key")?;
-    // or: Client::builder().api_key("WPUSH_your_key").timeout(std::time::Duration::from_secs(30)).build()?;
+    // 或显式传 key:
+    // Client::new("WPUSH_your_key")?;
+    // Client::builder().api_key("WPUSH_your_key").timeout(std::time::Duration::from_secs(30)).build()?;
     let _ = client;
     Ok(())
 }
 ```
 
-## Send — basic wechat
+## Send — 基础微信推送
 
 ```rust
 use wpush_sdk::{Client, SendParams};
@@ -42,9 +43,9 @@ let msg_id = client.send(
 println!("{msg_id}");
 ```
 
-## Send — multi-channel + option + idempotency_key
+## Send — 多渠道 + option + idempotency_key
 
-`option` is the per-channel instance code (e.g. Feishu `ops`). Mutually exclusive with `topic_code`.
+`option` 为渠道内实例编码（如飞书 `ops`），不可与 `topic_code` 同用。
 
 ```rust
 use wpush_sdk::SendParams;
@@ -59,7 +60,7 @@ let msg_id = client.send(
 println!("{msg_id}");
 ```
 
-## Send — topic_code (no option)
+## Send — topic_code（不带 option）
 
 ```rust
 use wpush_sdk::SendParams;
@@ -106,9 +107,9 @@ let relay = client.query_relay(&relay_id)?;
 println!("{relay:?}");
 ```
 
-## Error handling
+## 错误处理
 
-Rust uses `wpush::Error` with variants `Validation` (`ValidationError`) and `Api` (`WPushError`).
+Rust 使用 `wpush::Error`，变体包括 `Validation`（`ValidationError`）与 `Api`（`WPushError`）。
 
 ```rust
 use wpush_sdk::{Client, Error, SendParams};
@@ -122,8 +123,8 @@ match client.send(SendParams::new("").channel("wechat")) {
 }
 ```
 
-## Spec & UA
+## 规范与 UA
 
-See [SPEC.md](../SPEC.md).
+跨语言契约见 [SPEC.md](../SPEC.md)。
 
-User-Agent: `wpush-rust/0.1.0`
+User-Agent：`wpush-rust/0.1.0`

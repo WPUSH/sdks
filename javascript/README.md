@@ -1,8 +1,8 @@
 # @wpush/sdk
 
-Official WPUSH TypeScript/Node SDK (Node 18+ `fetch`).
+官方 WPUSH TypeScript/Node SDK（Node 18+ `fetch`）。
 
-## Install / env
+## 安装 / 环境变量
 
 ```bash
 npm install @wpush/sdk
@@ -12,11 +12,12 @@ export WPUSH_API_KEY=WPUSH_your_key
 ```ts
 import { Client, WPushError, ValidationError } from "@wpush/sdk";
 
-const client = new Client(); // reads WPUSH_API_KEY
-// or: new Client({ apiKey: "WPUSH_your_key" })
+const client = new Client(); // 读取 WPUSH_API_KEY
+// 或显式传 key:
+// new Client({ apiKey: "WPUSH_your_key" })
 ```
 
-## send — basic wechat
+## send — 基础微信推送
 
 ```ts
 const msgId = await client.send({
@@ -27,9 +28,9 @@ const msgId = await client.send({
 console.log(msgId);
 ```
 
-## send — multi-channel + option + idempotencyKey
+## send — 多渠道 + option + idempotencyKey
 
-`option` is the per-channel instance code (e.g. Feishu `ops`). Mutually exclusive with `topicCode`.
+`option` 为渠道内实例编码（如飞书 `ops`），不可与 `topicCode` 同用。
 
 ```ts
 const msgId = await client.send({
@@ -42,7 +43,7 @@ const msgId = await client.send({
 console.log(msgId);
 ```
 
-## send — topicCode (no option)
+## send — topicCode（不带 option）
 
 ```ts
 const msgId = await client.send({
@@ -88,7 +89,7 @@ const relay = await client.queryRelay(relayId);
 console.log(relay);
 ```
 
-## Error handling
+## 错误处理
 
 ```ts
 try {
@@ -104,8 +105,8 @@ try {
 }
 ```
 
-## Spec & UA
+## 规范与 UA
 
-See [SPEC.md](../SPEC.md).
+跨语言契约见 [SPEC.md](../SPEC.md)。
 
-User-Agent: `wpush-js/0.1.0`
+User-Agent：`wpush-js/0.1.0`

@@ -2,7 +2,7 @@
 
 官方 WPUSH Java SDK。JDK 11+ `HttpClient`，零第三方运行时依赖。
 
-## 安装 / Install
+## 安装
 
 Maven:
 

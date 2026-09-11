@@ -1,8 +1,8 @@
 # wpush (Go)
 
-Official WPUSH Go SDK. Module: `github.com/WPUSH/sdks/go`
+官方 WPUSH Go SDK。模块：`github.com/WPUSH/sdks/go`
 
-## Install / env
+## 安装 / 环境变量
 
 ```bash
 go get github.com/WPUSH/sdks/go
@@ -20,16 +20,17 @@ import (
 )
 
 func main() {
-	client, err := wpush.NewClient(wpush.Options{}) // reads WPUSH_API_KEY
+	client, err := wpush.NewClient(wpush.Options{}) // 读取 WPUSH_API_KEY
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = client
-	// or: wpush.NewClient(wpush.Options{APIKey: "WPUSH_your_key"})
+	// 或显式传 key:
+	// wpush.NewClient(wpush.Options{APIKey: "WPUSH_your_key"})
 }
 ```
 
-## Send — basic wechat
+## Send — 基础微信推送
 
 ```go
 msgID, err := client.Send(wpush.SendParams{
@@ -43,9 +44,9 @@ if err != nil {
 fmt.Println(msgID)
 ```
 
-## Send — multi-channel + Option + IdempotencyKey
+## Send — 多渠道 + Option + IdempotencyKey
 
-`Option` is the per-channel instance code (e.g. Feishu `ops`). Mutually exclusive with `TopicCode`.
+`Option` 为渠道内实例编码（如飞书 `ops`），不可与 `TopicCode` 同用。
 
 ```go
 msgID, err := client.Send(wpush.SendParams{
@@ -61,7 +62,7 @@ if err != nil {
 fmt.Println(msgID)
 ```
 
-## Send — TopicCode (no Option)
+## Send — TopicCode（不带 Option）
 
 ```go
 msgID, err := client.Send(wpush.SendParams{
@@ -122,9 +123,9 @@ if err != nil {
 fmt.Println(relay)
 ```
 
-## Error handling
+## 错误处理
 
-Go uses `*wpush.Error` (API/transport) and `*wpush.ValidationError` (local pre-check).
+Go 使用 `*wpush.Error`（API/传输错误）与 `*wpush.ValidationError`（本地预检）。
 
 ```go
 _, err := client.Send(wpush.SendParams{Title: "", Channel: "wechat"})
@@ -140,8 +141,8 @@ if err != nil {
 }
 ```
 
-## Spec & UA
+## 规范与 UA
 
-See [SPEC.md](../SPEC.md).
+跨语言契约见 [SPEC.md](../SPEC.md)。
 
-User-Agent: `wpush-go/0.1.0`
+User-Agent：`wpush-go/0.1.0`
