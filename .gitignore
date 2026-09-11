@@ -53,3 +53,6 @@ dart/.dart_tool/
 dart/.packages
 dart/pubspec.lock
 dart/build/
+
+# Rust
+target/

@@ -1,0 +1,26 @@
+[package]
+name = "wpush-sdk"
+version = "0.1.0"
+edition = "2021"
+description = "Official WPUSH Rust SDK"
+license = "MIT"
+authors = ["An Hao / WPUSH <im@alone88.cn>"]
+homepage = "https://github.com/WPUSH/sdks"
+repository = "https://github.com/WPUSH/sdks"
+documentation = "https://docs.rs/wpush-sdk"
+readme = "README.md"
+keywords = ["wpush", "push", "notification", "sdk"]
+categories = ["api-bindings", "web-programming"]
+
+[dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+regex = "1"
+
+# Keep URL/IDNA stack compatible with rustc 1.85 (CI/box)
+idna_adapter = "=1.2.0"
+
+[dev-dependencies]
+mockito = "1"

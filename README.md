@@ -16,6 +16,7 @@ Methods: `send` / `query` plus P0.5 relay APIs `sendMail` / `sendCode` / `queryR
 | Java | `cn.wpush:wpush-sdk` | `wpush-java/0.1.0` |
 | PHP | `wpush/wpush` | `wpush-php/0.1.0` |
 | Dart | `wpush` | `wpush-dart/0.1.0` |
+| Rust | `wpush-sdk` | `wpush-rust/0.1.0` |
 
 ## Spec
 
@@ -31,6 +32,7 @@ Each language README has **full per-method copy-paste examples** (`send` / `quer
 - Java: [java/README.md](./java/README.md)
 - PHP: [php/README.md](./php/README.md)
 - Dart: [dart/README.md](./dart/README.md)
+- Rust (`wpush-sdk`): [rust/README.md](./rust/README.md)
 
 ```bash
 export WPUSH_API_KEY=WPUSH_your_key
